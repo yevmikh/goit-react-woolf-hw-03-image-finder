@@ -28,10 +28,25 @@ export class App extends Component {
     ) {
       this.loadImages();
     }
+
+    if (
+      this.state.images.length === this.state.totalHits &&
+      this.state.images.length > 0 &&
+      prevState.loading &&
+      !this.state.loading
+    ) {
+      toast.info('No more images to load.');
+    }
   }
 
   handleSearchSubmit = query => {
-    this.setState({ query, page: 1, images: [], totalHits: 0 });
+    this.setState({
+      query,
+      page: 1,
+      images: [],
+      totalHits: 0,
+      loadMore: false,
+    });
   };
 
   loadImages = async () => {
@@ -39,18 +54,21 @@ export class App extends Component {
     try {
       const { query, page } = this.state;
       const { hits, totalHits } = await fetchImages(query, page);
+      if (hits.length === 0) {
+        toast.info(`No images found with name ${query} Try another search`);
+        this.setState({ loading: false, loadMore: false });
+        return;
+      }
+
       this.setState(prevState => ({
         images: [...prevState.images, ...hits],
-        loading: false,
-        loadMore: page < Math.ceil(totalHits / 12),
         totalHits,
       }));
-      if (hits.length === 0) {
-        toast.info('There are no more pictures.');
-      }
     } catch (error) {
       this.setState({ loading: false });
       toast.error('There was a problem with the request.');
+    } finally {
+      this.setState({ loading: false });
     }
   };
 
@@ -69,7 +87,8 @@ export class App extends Component {
   };
 
   render() {
-    const { images, loading, loadMore, showModal, largeImageURL } = this.state;
+    const { images, loading, showModal, largeImageURL, totalHits } = this.state;
+    const loadMore = images.length > 0 && images.length < totalHits;
     return (
       <div>
         <Searchbar
@@ -79,9 +98,7 @@ export class App extends Component {
         <ImageGallery images={images} onImageClick={this.handleImageClick} />
         {loading && <Loader />}
         {loadMore && <Button onClick={this.handleLoadMore}>Load more</Button>}
-        {!loadMore &&
-          images.length > 0 &&
-          toast.info('No more images to load.')}
+
         {showModal && (
           <Modal largeImageURL={largeImageURL} onClose={this.closeModal} />
         )}
