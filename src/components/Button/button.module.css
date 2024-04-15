@@ -1,0 +1,23 @@
+.buttonMore {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  border-radius: 8060px;
+  background-color: #3f51b5;
+  color: #fff;
+  margin-left: auto;
+  margin-right: auto;
+
+  font-size: 16px;
+  cursor: pointer;
+  height: 36px;
+  padding: 5px 50px;
+}
+
+.buttonMore:hover,
+.buttonMore:focus {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background-color: #505eac;
+  outline: none;
+}
